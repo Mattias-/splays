@@ -36,4 +36,13 @@ getEpisodes = function(ch, titles){
 };
 
 
-getAllTitlesAndEpisodes(utils.svtplay);
+//getAllTitlesAndEpisodes(utils.svtplay);
+//utils.getAllTitles(utils.tv4play, function(titles, error){
+//    console.log(titles);
+    
+//});
+utils.getAllEpisodesOfTitle(utils.tv4play, '{baseUrl}/program/solsidan',
+                            function(episodes, error){
+    console.log(episodes);    
+});
+

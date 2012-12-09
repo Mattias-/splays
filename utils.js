@@ -87,11 +87,27 @@ utils.tv4play = {
             }
         },
         'nodeParser': function(n){
-            return {'url': n.attribs.href, 'name': n.children[0].data};
+            return {'url': '{baseUrl}' + n.attribs.href,
+                    'name': n.children[0].data};
         } 
     },
     'allTitleEpisodes': {
-        'url': ''
+        'url': '{titleUrl}',
+        'nodeFinder': function(n){
+            if(!(n.type == 'tag'
+               && n.name == "a")){
+              return false;
+            }
+            return _.has(n, "parent")
+              && n.parent.name == "h3"
+              && _.has(n.parent, "attribs")
+              && _.has(n.parent.attribs, "class")
+              && n.parent.attribs.class.indexOf("video-title") !== -1;
+        },
+        'nodeParser': function(n){
+            return {'url': '{baseUrl}'+ n.attribs.href,
+                    'name': n.children[0].data};
+        }
     }
 }; 
 
