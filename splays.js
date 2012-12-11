@@ -1,18 +1,7 @@
 
 var _ = require('underscore');
 var utils = require('./utils');
-
-//console.log(utils);
-
-getAllTitlesAndEpisodes = function(ch){
-  utils.getAllTitles(ch, function(titles, error){
-     if(!error){
-      //console.log(values);
-      //var titles = titles.slice(4,20); //XXX
-      return getEpisodes(ch, titles);
-     } 
-  });
-};
+var channels = require('./channels');
 
 getEpisodes = function(ch, titles){
     console.time(ch.name + " ("+ titles.length+" titles) getEpisodes");
@@ -35,14 +24,14 @@ getEpisodes = function(ch, titles){
     });
 };
 
-
-//getAllTitlesAndEpisodes(utils.svtplay);
-//utils.getAllTitles(utils.tv4play, function(titles, error){
-//    console.log(titles);
-    
-//});
-utils.getAllEpisodesOfTitle(utils.tv4play, '{baseUrl}/program/solsidan',
-                            function(episodes, error){
-    console.log(episodes);    
+channels.svtplay.getTitles(function(res, error){
+    console.log(res);
+    console.log(res[18].getURL());
+    //utils.svtplay.getEpisodes(res[18], function(res, error){
+    //    console.log(res);  
+    //});
+    res[13].getEpisodes(function(eps){
+        console.log(eps);
+    });
 });
 
