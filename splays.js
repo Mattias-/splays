@@ -24,14 +24,19 @@ getEpisodes = function(ch, titles){
     });
 };
 
-channels.svtplay.getTitles(function(res, error){
-    console.log(res);
-    console.log(res[18].getURL());
+//channels.svtplay.getTitles(function(res, error){
+//    console.log(res);
+//    console.log(res[18].getURL());
     //utils.svtplay.getEpisodes(res[18], function(res, error){
     //    console.log(res);  
     //});
-    res[13].getEpisodes(function(eps){
-        console.log(eps);
-    });
+//    res[13].getEpisodes(function(eps){
+//        console.log(eps);
+//    });
+//});
+
+channels.tv4play.getTitles(function(res){
+    console.log(res);
+    res[res.length-1].getEpisodes(function(res){console.log(res)})
 });
 

@@ -44,6 +44,15 @@ utils.Title.prototype.getURL = function(){
     return url;
 };
 
+utils.Episode = function(ch, title, name, url, datetime, data){
+    this.channel = ch;
+    this.title = title;
+    this.name = name;
+    this.url = url;
+    this.datetime = datetime;
+    this.data = data;
+};
+
 utils.htmlScraper = function(url, nodeFinder, nodeParser, callback){
     console.time("htmlScraper " + url);
     request(url, function (error, response, page) {
