@@ -4,7 +4,9 @@ module.exports = channels;
 var _ = require('underscore');
 var ent = require('ent');
 var request = require('request');
+
 var utils = require('./utils');
+var core = require('./core');
 
 channels.svtplay = {
   'name': 'SVT Play',
@@ -23,7 +25,7 @@ channels.svtplay = {
       'nodeParser': function(n){
         var urlstr = n.attribs.href.slice(1);
         var name = ent.decode(n.children[0].data);
-        var title = new utils.Title(channels.svtplay, name, urlstr, {});
+        var title = new core.Title(channels.svtplay, name, urlstr, {});
         return title;
       } 
     },
@@ -39,7 +41,7 @@ channels.svtplay = {
       'nodeParser': function(n){
         var url = '{baseUrl}' + n.children[0].children[0].attribs.href;
         var name = ent.decode(n.attribs['data-title']);
-        return new utils.Episode(channels.svtplay, '',
+        return new core.Episode(channels.svtplay, '',
                                  name, url, '', {});
       } 
     }
@@ -90,7 +92,7 @@ channels.tv4play = {
       'nodeParser': function(n){
         var urlstr = decodeURI(n.attribs.href.split('/program/')[1]);
         var name = n.children[0].data;
-        var title = new utils.Title(channels.tv4play, name, urlstr, {});
+        var title = new core.Title(channels.tv4play, name, urlstr, {});
         return title;
       } 
     },
@@ -110,7 +112,7 @@ channels.tv4play = {
       'nodeParser': function(n){
         var url = '{baseUrl}'+ n.attribs.href;
         var name =  n.children[0].data;
-        var episode = new utils.Episode(channels.tv4play, 'title', name,
+        var episode = new core.Episode(channels.tv4play, 'title', name,
                                         url, 'datetime', {});
         return episode;
       }

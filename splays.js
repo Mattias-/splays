@@ -1,5 +1,7 @@
 
 var _ = require('underscore');
+
+var channels = require('./core');
 var utils = require('./utils');
 var channels = require('./channels');
 
@@ -36,7 +38,7 @@ getEpisodes = function(ch, titles){
 //});
 
 channels.tv4play.getTitles(function(res){
-  console.log(res);
-  res[res.length-1].getEpisodes(function(res){console.log(res)})
+  console.log(res[0], res[55]);
+  //res[res.length-1].getEpisodes(function(res){console.log(res)})
+   
 });
-

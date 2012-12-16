@@ -27,34 +27,6 @@ var nodeSearch = function(node, func){
   return ret;
 }
 
-
-utils.Title = function(ch, name, urlstr, data){
-  this.channel = ch;
-  this.name = name;
-  this.urlstr = urlstr;
-  this.data = data;
-};
-
-utils.Title.prototype.getEpisodes = function(callback){
-  this.channel.getEpisodes(this, callback);
-};
-
-utils.Title.prototype.getURL = function(){
-  var titleUrl = this.channel.titleUrl.replace('{baseUrl}',
-                                               this.channel.baseUrl);
-  var url = titleUrl.replace('{titleUrlStr}', this.urlstr);
-  return url;
-};
-
-utils.Episode = function(ch, title, name, url, datetime, data){
-  this.channel = ch;
-  this.title = title;
-  this.name = name;
-  this.url = url;
-  this.datetime = datetime;
-  this.data = data;
-};
-
 utils.htmlScraper = function(url, nodeFinder, nodeParser, callback){
   console.time("htmlScraper " + url);
   request(url, function (error, response, page) {
