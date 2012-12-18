@@ -48,3 +48,30 @@ utils.htmlScraper = function(url, nodeFinder, nodeParser, callback){
     }
   });
 };
+
+hash = function(o, props){
+  var res = "";
+  _.each(props, function(pr){
+    res += o[pr]; 
+  });
+  return res;
+};
+
+utils.objListDiff = function(a1, a2, eq){
+  if(!_.isArray(a1) || a1.length <= 0){
+    return a2; 
+  } else if(!_.isArray(a2) || a2.length <= 0){
+    return a1;
+  }
+  hmap = {};
+  r = [];
+  _.each(a2, function(e2){
+    hmap[hash(e2, eq)] = e2;
+  });
+  _.each(a1, function(e1){
+    if(!hmap[hash(e1, eq)]){
+      r.push(e1);
+    }
+  });
+  return r;
+};

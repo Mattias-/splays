@@ -1,44 +1,72 @@
 
 var _ = require('underscore');
+var assert = require('assert');
 
-var channels = require('./core');
+var core = require('./core');
 var utils = require('./utils');
 var channels = require('./channels');
 
-getEpisodes = function(ch, titles){
-  console.time(ch.name + " ("+ titles.length+" titles) getEpisodes");
-  var completedTitles = 0; 
-  var episodeTotal = 0;
-  _.each(titles, function(title){
-    utils.getAllEpisodesOfTitle(ch, title.url,
-      function(episodes, error){
-        if(!error){
-          title.episodes = episodes;
-          episodeTotal += episodes.length;
-        }
-        if(++completedTitles == titles.length){
-          //console.log(some);
-          console.timeEnd(ch.name + " ("+ titles.length+" titles) getEpisodes");
-          console.log('Total episodes: ' + episodeTotal);
-          return titles;
-        }
-      });
+/*
+ *  t: title object
+ *  col: reused db collection
+ *  pos: positive callback, if exists
+ *  neg: negative callback, not exists
+ */
+titleExist = function(t, col, pos, neg){
+  col.findOne({'channel.name': t.channel.name, name: t.name, urlstr: t.urlstr},
+              function(err, found){
+      if(found == null){
+        neg(t, col);
+      } else {
+        pos(t, found, col); 
+      }
   });
 };
 
-//channels.svtplay.getTitles(function(res, error){
-//    console.log(res);
-//    console.log(res[18].getURL());
-//utils.svtplay.getEpisodes(res[18], function(res, error){
-//    console.log(res);  
-//});
-//    res[13].getEpisodes(function(eps){
-//        console.log(eps);
-//    });
-//});
+addNewTitle = function(t, col){
+  t.getEpisodes(function(eps, error){
+    assert.equal(false, error);
+    t.episodes = eps;
+    t._added = new Date().toISOString();
+    _.each(t.episodes, function(e){e._added = t._added});
+    col.insert(t, {safe:false});
+    console.log('new title:', t);
+  });
+};
 
-channels.tv4play.getTitles(function(res){
-  console.log(res[0], res[55]);
-  //res[res.length-1].getEpisodes(function(res){console.log(res)})
-   
-});
+updateEpisodesOfTitle = function(t, found, col){
+  t.getEpisodes(function(eps, error){
+    assert.equal(false, error);
+    var newEps = utils.objListDiff(eps, found.episodes,
+    ["name", "url"]);
+    var remEps = utils.objListDiff(found.episodes, eps,
+    ["name", "url"]);
+    //TODO something about remEps, episodes in db but not in source.
+    var date = new Date().toISOString();
+    _.each(newEps, function(e){e._added = date});
+    col.update({'channel.name': t.channel.name,
+      name: t.name,
+      urlstr: t.urlstr
+    }, {$pushAll: {episodes:newEps}},{safe:false});
+    if(newEps.length > 0){
+      console.log(t.name+" new episodes:", newEps); 
+    }
+  });
+};
+
+updateChannels = function(channels){
+  core.db.open(function(err, db){
+    assert.equal(null, err);
+    db.collection('titles', function(err, col){
+      _.each(channels, function(ch){
+        ch.getTitles(function(res){
+          _.each(res, function(t){
+            titleExist(t, col, updateEpisodesOfTitle, addNewTitle);
+          }); 
+        });
+      });
+    });
+  }); 
+};
+
+updateChannels([channels.tv4play, channels.svtplay]);

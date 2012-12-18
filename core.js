@@ -8,7 +8,7 @@ var config = require('./config');
 
 core.db_serv = new mongodb.Server(config.mongodb.host, config.mongodb.port,
                                   config.mongodb.server_options);
-core.db = new mongodb.Db(config.mongodb.db_name, db_serv,
+core.db = new mongodb.Db(config.mongodb.db_name, core.db_serv,
                          config.mongodb.db_options);
 
 core.Title = function(ch, name, urlstr, data){
