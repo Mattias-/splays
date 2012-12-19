@@ -108,6 +108,7 @@ channels.tv4play = {
         && _.has(n.parent, "attribs")
         && _.has(n.parent.attribs, "class")
         && n.parent.attribs.class.indexOf("video-title") !== -1;
+        //TODO not return other shows
       },
       'nodeParser': function(n){
         var url = '{baseUrl}'+ n.attribs.href;

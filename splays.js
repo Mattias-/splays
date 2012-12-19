@@ -74,8 +74,58 @@ updateChannels = function(channels, callback){
   }); 
 };
 
-console.time("Update all");
-updateChannels([channels.tv4play, channels.svtplay], function(err){
-  console.timeEnd("Update all");
-  process.exit();
+getEpisodesBetween = function(ch, d1, d2, callback){
+  core.db.open(function(err, db){
+    assert.equal(null, err);
+    db.collection('titles', function(err, col){
+      var chNames = _.pluck(ch, 'name');
+      col.find({'channel.name': {$in: chNames},
+                episodes: {$elemMatch: {_added: {$gte: d1, $lt: d2}}}
+               }
+               //,{
+               // name: 1,
+               // 'episodes.name':1,
+               // 'episodes._added':1}
+        ).toArray(function(err, res){
+        //console.log(res);
+        var len = res.length;
+        for(var i = 0; i< len; i++){
+          res[i].newEps = _.filter(res[i].episodes, function(ep){
+            return ep._added >= d1 && ep._added < d2;
+          }); 
+        }
+        callback(res);
+      });
+    });
+  });
+};
+
+var d1 = new Date();
+d1.setDate(18);
+d1.setHours(17);
+d1.setMinutes(0);
+
+var d2 = new Date();
+d2.setDate(18);
+d2.setHours(18);
+d2.setMinutes(0);
+
+getEpisodesBetween([
+                    //channels.tv4play,
+                    channels.svtplay
+                    ], d1, d2,
+                   function(titles, err){
+                    _.each(titles, function(title){
+                     console.log(title.name);
+                     _.each(title.newEps, function(e){
+                      console.log("  "+e.name);
+                     });
+                    });
+                     //process.exit();
 });
+
+//console.time("Update all");
+//updateChannels([channels.tv4play, channels.svtplay], function(err){
+//  console.timeEnd("Update all");
+//  process.exit();
+//});
