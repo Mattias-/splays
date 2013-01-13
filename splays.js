@@ -82,6 +82,30 @@ getEpisodesBetween = function(ch, d1, d2, callback){
       col.find({'channel.name': {$in: chNames},
                 episodes: {$elemMatch: {_added: {$gte: d1, $lt: d2}}}
                }
+               ,{'episodes':1}
+        ).toArray(function(err, res){
+        var ret = [];
+        var len = res.length;
+        for(var i = 0; i< len; i++){
+          var newEps = _.filter(res[i].episodes, function(ep){
+            return ep._added >= d1 && ep._added < d2;
+          }); 
+          ret = ret.concat(newEps);
+        }
+        callback(ret);
+      });
+    });
+  });
+};
+
+getTitlesWithEpisodesBetween = function(ch, d1, d2, callback){
+  core.db.open(function(err, db){
+    assert.equal(null, err);
+    db.collection('titles', function(err, col){
+      var chNames = _.pluck(ch, 'name');
+      col.find({'channel.name': {$in: chNames},
+                episodes: {$elemMatch: {_added: {$gte: d1, $lt: d2}}}
+               }
                //,{
                // name: 1,
                // 'episodes.name':1,
@@ -110,22 +134,36 @@ d2.setDate(18);
 d2.setHours(18);
 d2.setMinutes(0);
 
-getEpisodesBetween([
-                    //channels.tv4play,
-                    channels.svtplay
-                    ], d1, d2,
-                   function(titles, err){
-                    _.each(titles, function(title){
-                     console.log(title.name);
-                     _.each(title.newEps, function(e){
-                      console.log("  "+e.name);
-                     });
-                    });
-                     //process.exit();
-});
-
-//console.time("Update all");
-//updateChannels([channels.tv4play, channels.svtplay], function(err){
-//  console.timeEnd("Update all");
-//  process.exit();
+//getEpisodesBetween([
+//                    //channels.tv4play,
+//                    channels.svtplay
+//                    ], d1, d2,
+//                   function(eps, err){
+//                   _.each(eps, function(e){
+//                    console.log("  "+e.name);
+//                   });
+//                     //process.exit();
 //});
+
+
+episodeOfDay = function(ch, d){
+  var start = new Date(d.toString());
+  start.setHours(0);
+  start.setMinutes(0);
+  start.setSeconds(0);
+  var end = new Date(start.toString());
+  end.setDate(start.getDate()+1);
+
+  getEpisodeBetween(ch, start, end, function(titles){
+      _.each(titles, function(title){
+        //_.each(title.newEps()
+      });
+  });
+
+};
+
+console.time("Update all");
+updateChannels([channels.tv4play, channels.svtplay], function(err){
+  console.timeEnd("Update all");
+  process.exit();
+});
